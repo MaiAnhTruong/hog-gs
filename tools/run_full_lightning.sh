@@ -64,11 +64,15 @@ mode_flags () {
 extract () { "$PYTHON" - "$1" "$ITERS" <<'PY'
 import json, os, sys
 m, it = sys.argv[1], sys.argv[2]
+def f(v):
+    return f"{v:.4f}" if isinstance(v, (int, float)) else "NA"
 try:
     d = json.load(open(os.path.join(m, "metrics", "run_manifest.json")))
     e = d["metrics"].get(str(it)) or d["metrics"][sorted(d["metrics"], key=int)[-1]]
-    print(f"{e.get('test_psnr_mean')} {e.get('test_ssim_mean')} {e.get('test_lpips_mean')} {e.get('test_view_count')}")
-except Exception as ex: print(f"NA NA NA NA ({ex})")
+    print(f"{f(e.get('test_psnr_mean'))} {f(e.get('test_ssim_mean'))} {f(e.get('test_lpips_mean'))} "
+          f"{f(e.get('train_psnr_mean'))} {f(e.get('train_ssim_mean'))} {f(e.get('train_lpips_mean'))} "
+          f"{e.get('test_view_count')}")
+except Exception as ex: print(f"NA NA NA NA NA NA NA ({ex})")
 PY
 }
 
@@ -91,7 +95,7 @@ for CASE_DIR in "$SCENES_ROOT"/*/; do
         echo "[SKIP] $LABEL: missing depth/CFDC cache at $CACHE" | tee -a "$SUMMARY"
         continue
       fi
-      printf "%-18s %-9s %-9s %-9s %-6s\n" mode PSNR SSIM LPIPS NViews | tee -a "$SUMMARY"
+      printf "%-18s %-9s %-9s %-9s %-9s %-9s %-9s %-6s\n" mode tePSNR teSSIM teLPIPS trPSNR trSSIM trLPIPS NViews | tee -a "$SUMMARY"
       for M in $MODES; do
         EX="$(mode_flags "$M")"; [ "$EX" = "__BAD__" ] && { echo "[SKIP] unknown mode $M"; continue; }
         OUT="$OUTROOT/$CASE/$SCN/$M"
@@ -101,8 +105,8 @@ for CASE_DIR in "$SCENES_ROOT"/*/; do
         fi
         mkdir -p "$OUT"
         [ -f "$OUT/metrics/run_manifest.json" ] || ( "$PYTHON" train.py -s "$SC" -m "$OUT" $COMMON $EX $EXTRA ) > >(tee "$OUTROOT/$CASE.$SCN.$M.log") 2>&1
-        read -r P S L N <<< "$(extract "$OUT")"
-        printf "%-18s %-9s %-9s %-9s %-6s\n" "$M" "$P" "$S" "$L" "$N" | tee -a "$SUMMARY"
+        read -r P S L TP TS TL N <<< "$(extract "$OUT")"
+        printf "%-18s %-9s %-9s %-9s %-9s %-9s %-9s %-6s\n" "$M" "$P" "$S" "$L" "$TP" "$TS" "$TL" "$N" | tee -a "$SUMMARY"
       done
     done
   done
