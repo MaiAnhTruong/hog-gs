@@ -34,9 +34,10 @@ DRY_RUN="${DRY_RUN:-0}"
 SUMMARY="$OUTROOT/FULL_SUMMARY.txt"; mkdir -p "$OUTROOT"
 TI="$(seq -s ' ' 1000 1000 "$ITERS")"; [ -n "$TI" ] || TI="$ITERS"
 
+# save PLY + checkpoint at the FINAL iteration only (disk-friendly); summary metrics only (no per-view)
 COMMON="--use_existing_split --iterations $ITERS --disable_viewer --quiet \
-  --test_iterations $TI --save_iterations 7000 $ITERS --checkpoint_iterations $ITERS \
-  --metrics_log_interval 1000 --metrics_eval_train_count -1 --metrics_eval_per_view --metrics_compute_lpips"
+  --test_iterations $TI --save_iterations $ITERS --checkpoint_iterations $ITERS \
+  --metrics_log_interval 1000 --metrics_eval_train_count -1 --metrics_compute_lpips"
 CF="--cfdc_enable --cfdc_power 1.0 --cfdc_floor 0.05"
 SW="--swd_enable --swd_start 1000 --swd_update_interval 500 --swd_lambda_opacity 0.001"
 
