@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.env
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Build / native extensions
+build/
+dist/
+*.egg-info/
+*.so
+*.pyd
+*.dll
+
+# Training outputs
+output/
+outputs/
+logs/
+wandb/
+runs/
+checkpoints/
+metrics/
+tensorboard/
+
+# Large model/checkpoint files
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.ply
+
+# Data
+data/
+datasets/
+scenes/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporary
+tmp/
+temp/
+*.log
